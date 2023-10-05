@@ -8,15 +8,26 @@ window.onload = async function () {
     featureEnabled = result.featureEnabled || false;
   });
 
-  // user events
-  if (featureEnabled) {
-    searchButton.addEventListener("click", performSearchNewTab);
-    inputFIeld.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        performSearchNewTab(e);
+  // Watch for changes to the user's options & apply them
+  chrome.storage.onChanged.addListener((changes, area) => {
+    for (var key in changes) {
+      if (key === "featureEnabled") {
+        featureEnabled = changes.featureEnabled.newValue;
       }
-    });
-  }
+    }
+  });
+
+  // user events
+  searchButton.addEventListener("click", () => {
+    if (featureEnabled) {
+      performSearchNewTab(event);
+    }
+  });
+  inputFIeld.addEventListener("keydown", function (e) {
+    if (featureEnabled && e.key === "Enter") {
+      performSearchNewTab(event);
+    }
+  });
 
   function performSearchNewTab(e) {
     e.stopImmediatePropagation();
